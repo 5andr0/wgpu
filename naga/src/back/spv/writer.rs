@@ -109,6 +109,8 @@ impl Writer {
             std140_compat_uniform_types: crate::FastHashMap::default(),
             fake_missing_bindings: options.fake_missing_bindings,
             binding_map: options.binding_map.clone(),
+            correspondence: None,
+            correspondence_owner: None,
             saved_cached: CachedExpressions::default(),
             gl450_ext_inst_id,
             temp_list: Vec::new(),
@@ -170,6 +172,8 @@ impl Writer {
         // Every field of the old writer that is not determined by the `Options`
         // passed to `Writer::new` should be reset somehow.
         let fresh = Writer {
+            correspondence: self.correspondence.take(),
+            correspondence_owner: None,
             // Copied from the old Writer:
             flags: self.flags,
             bounds_check_policies: self.bounds_check_policies,
@@ -1315,9 +1319,11 @@ impl Writer {
         ir_function: &crate::Function,
         info: &FunctionInfo,
         ir_module: &crate::Module,
+        owner: crate::correspondence::Owner,
         mut interface: Option<FunctionInterface>,
         debug_info: &Option<DebugInfoInner>,
     ) -> Result<Word, Error> {
+        self.correspondence_owner = Some(owner);
         self.write_wrapped_functions(ir_function, info, ir_module)?;
 
         log::trace!("Generating code for {:?}", ir_function.name);
@@ -1841,6 +1847,18 @@ impl Writer {
         let BlockContext {
             cached, temp_list, ..
         } = context;
+        if let Some(report) = self.correspondence.as_mut() {
+            for (source, disposition) in &mut report.values {
+                if source.owner == owner {
+                    let id = cached.ids[source.expression];
+                    *disposition = if id == 0 {
+                        crate::correspondence::EmittedValue::NoValueId
+                    } else {
+                        crate::correspondence::EmittedValue::Value(id)
+                    };
+                }
+            }
+        }
         self.saved_cached = cached;
         self.temp_list = temp_list;
 
@@ -1878,6 +1896,7 @@ impl Writer {
     fn write_entry_point(
         &mut self,
         entry_point: &crate::EntryPoint,
+        owner: crate::correspondence::Owner,
         info: &FunctionInfo,
         ir_module: &crate::Module,
         debug_info: &Option<DebugInfoInner>,
@@ -1888,6 +1907,7 @@ impl Writer {
             &entry_point.function,
             info,
             ir_module,
+            owner,
             Some(FunctionInterface {
                 varying_ids: &mut interface_ids,
                 stage: entry_point.stage,
@@ -3994,7 +4014,14 @@ impl Writer {
                     continue;
                 }
             }
-            let id = self.write_function(ir_function, info, ir_module, None, &debug_info_inner)?;
+            let id = self.write_function(
+                ir_function,
+                info,
+                ir_module,
+                crate::correspondence::Owner::Function(handle),
+                None,
+                &debug_info_inner,
+            )?;
             self.lookup_function.insert(handle, id);
         }
 
@@ -4004,8 +4031,13 @@ impl Writer {
                 continue;
             }
             let info = mod_info.get_entry_point(index);
-            let ep_instruction =
-                self.write_entry_point(ir_ep, info, ir_module, &debug_info_inner)?;
+            let ep_instruction = self.write_entry_point(
+                ir_ep,
+                crate::correspondence::Owner::EntryPoint(index),
+                info,
+                ir_module,
+                &debug_info_inner,
+            )?;
             ep_instruction.to_words(&mut self.logical_layout.entry_points);
         }
 

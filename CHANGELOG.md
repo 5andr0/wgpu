@@ -103,6 +103,10 @@ By @sagudev in [#10307](https://github.com/gfx-rs/wgpu/pull/10307).
 
 ### Added/New Features
 
+#### naga
+
+- Add opt-in execution correspondence reports for compaction and SPIR-V writing/parsing, including explicit removed and unsupported dispositions. By @5andr0.
+
 #### General
 
 - Support the `wasm64-unknown-unknown` target for the web backend. Building for wasm64 requires a nightly toolchain with `-Z build-std=std,panic_abort`. By @nickbabcock in [#9836](https://github.com/gfx-rs/wgpu/pull/9836).
