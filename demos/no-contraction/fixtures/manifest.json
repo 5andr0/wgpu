@@ -1,0 +1,102 @@
+{
+  "schema": "no-contraction-precompiled-v1",
+  "description": "Authored runtime-input fixture; generated shaders and input only, no compiler binary or compiler sources.",
+  "input_words_le": [
+    "3f800001",
+    "3f7ffffe",
+    "bf800000",
+    "00000000"
+  ],
+  "separate_rne_reference_bits": "00000000",
+  "ideal_fused_reference_bits": "a8800000",
+  "unmarked_gpu_difference_required": false,
+  "sources": [
+    {
+      "name": "controlled.comp",
+      "sha256_normalized_lf": "5d411d89391dbbad865966cfdd607338c1e5a3b0ade662e1110e44cccce42736"
+    },
+    {
+      "name": "unmarked.comp",
+      "sha256_normalized_lf": "3dd3f184b40463e7f23c17b61108807a28a17ba297911a2f3967b62ea5b907f0"
+    }
+  ],
+  "original_compiler": {
+    "name": "Khronos glslang",
+    "version": "16.6.0",
+    "executable_sha256": "9643709c02c83e26773f96b6a87f197ab2e84f78be0879ad8fb3619418b5d9ad",
+    "official_archive_url": "https://github.com/KhronosGroup/glslang/releases/download/16.6.0/glslang-16.6.0-windows-x86_64-release.zip",
+    "official_archive_sha256": "82bf434e69b9bb4829de7e2b4bc2c5e7a7861e53d66cf75e5cc70f5f694a8d9b",
+    "command_template": "glslang -V SOURCE.comp -o OUTPUT.spv",
+    "fresh_compile_byte_identical_to_retained_fixture": true
+  },
+  "roundtrip_epochs": {
+    "old": {
+      "naga_base_commit": "0a8aefdad0423ee8f4f758a2707bd114be73437f",
+      "kind": "unpatched Naga parse and SPIR-V re-emission"
+    },
+    "fixed": {
+      "kind": "retained candidate11 Naga parse and SPIR-V re-emission; not regenerated as candidate15",
+      "patch_sha256": "86118c36ae0832b286218e0f90392bc8eb53b7f1c9cf900fe2cb831ed8b962d0",
+      "source_inventory_sha256": "2f99e51a9afab4617a545320cc0c3e624b0b6f59eaadd70076637a5e682fd60b"
+    }
+  },
+  "validation": {
+    "tool": "SPIRV-Tools spirv-val",
+    "executable_sha256": "eaa4b6d8e2853e4afb0932d721d1f14dd022260a87b84b5dd3e0ea284a5bf982",
+    "arguments": [
+      "--target-env",
+      "vulkan1.1"
+    ],
+    "all_six_exit_zero": true,
+    "new_gpu_execution": false
+  },
+  "files": [
+    {
+      "name": "original-controlled.spv",
+      "bytes": 1096,
+      "sha256": "f984614c2fda29cebdac8ed91e2f9e2cca453bfeb01dcedef5c461ff76774b6c",
+      "no_contraction_producers": [
+        "FAdd",
+        "FMul"
+      ]
+    },
+    {
+      "name": "original-unmarked.spv",
+      "bytes": 1072,
+      "sha256": "29362659f9c30035921777215364ef6635e18197f53c490950b5e7b7eaa644e0",
+      "no_contraction_producers": []
+    },
+    {
+      "name": "old-controlled.spv",
+      "bytes": 1416,
+      "sha256": "082f7579c55596198e82a2717924d41821bf794255fc3a1bc5a1b12720de04b5",
+      "no_contraction_producers": []
+    },
+    {
+      "name": "old-unmarked.spv",
+      "bytes": 1416,
+      "sha256": "082f7579c55596198e82a2717924d41821bf794255fc3a1bc5a1b12720de04b5",
+      "no_contraction_producers": []
+    },
+    {
+      "name": "fixed-controlled.spv",
+      "bytes": 1440,
+      "sha256": "05de02c514f900285229c640b3e79b87d1d87aacc0602f60fe45489ca7a35c93",
+      "no_contraction_producers": [
+        "FAdd",
+        "FMul"
+      ]
+    },
+    {
+      "name": "fixed-unmarked.spv",
+      "bytes": 1416,
+      "sha256": "082f7579c55596198e82a2717924d41821bf794255fc3a1bc5a1b12720de04b5",
+      "no_contraction_producers": []
+    },
+    {
+      "name": "input.bin",
+      "bytes": 16,
+      "sha256": "61960688aa41ffcd3fd977acceb39fb2e572559b983c4dff3e995e9852f0989d"
+    }
+  ]
+}
