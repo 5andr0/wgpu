@@ -43,6 +43,32 @@ Actual CPU qualification of this authored input: original producer opcodes `[FAd
 The fix branch contains no demonstration files. An optional direct Vulkan measurement is documented below; it does not re-import emitted SPIR-V through Naga.
 
 
+## Compare the published branches
+
+Start in an empty working directory. These shallow checkouts select the unpatched demo branch and the reviewed precision fix explicitly:
+
+```sh
+git clone --depth 1 --branch codex/no-contraction-demo https://github.com/5andr0/wgpu.git wgpu-demo
+git clone --depth 1 --branch codex/naga-preserve-no-contraction https://github.com/5andr0/wgpu.git wgpu-fixed
+mkdir -p wgpu-fixed/demos
+cp -R wgpu-demo/demos/no-contraction wgpu-fixed/demos/
+sh wgpu-demo/demos/no-contraction/run-cpu.sh lost
+sh wgpu-fixed/demos/no-contraction/run-cpu.sh preserved
+```
+
+On Windows, use the same two clone commands, then:
+
+```powershell
+New-Item -ItemType Directory -Path .\wgpu-fixed\demos -Force | Out-Null
+Copy-Item -Recurse .\wgpu-demo\demos\no-contraction .\wgpu-fixed\demos\
+powershell -NoProfile -ExecutionPolicy Bypass -File .\wgpu-demo\demos\no-contraction\run.ps1 -Mode Cpu -Expectation lost -OutputDirectory .\results-old
+powershell -NoProfile -ExecutionPolicy Bypass -File .\wgpu-fixed\demos\no-contraction\run.ps1 -Mode Cpu -Expectation preserved -OutputDirectory .\results-fixed
+```
+
+The output directories must be new. Both runs use the same authored source/input fixtures and each checkout's local Naga: the controlled roundtrip must lose its decorations on the demo branch and preserve them on the fix branch. The unmarked roundtrip must remain unmarked. These commands check metadata on the CPU, not GPU arithmetic.
+
+Copying the directory does not replace the bundled `candidate11` fixtures. The CPU harness writes freshly emitted modules to its result directory; it does not overwrite or relabel those retained GPU fixtures.
+
 ## Optional native Vulkan measurement
 
 The separate `native` crate uses ash to submit the exact six bundled SPIR-V modules to Vulkan, bypassing Naga re-import. Requirements: Vulkan 1.1 compute device, host-visible coherent memory, official Khronos validation layer and debug-utils. This small harness accepts only the authored fixture; it is not a sandbox or a general SPIR-V validator. No shader compiler is invoked.
