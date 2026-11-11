@@ -1,6 +1,8 @@
 name: CI
 
 on:
+  push:
+    branches: [codex/ci-vulkan-buffer-budget]
   pull_request:
   # Runs on `trunk` to save the build caches that pull requests read
   # and to upload the coverage baseline.
